@@ -36,15 +36,14 @@ public class GameService {
         Player player = playerRepository.findById(playerId)
                 .orElseThrow(() -> new RuntimeException("Jugador no encontrado"));
         
-        Optional<GameInProgress> existingGame = gameInProgressRepository.findByJugadorIdOrderByFechaInicioDesc(playerId)
-                .stream().findFirst();
+        Word word = wordRepository.findRandomWord()
+                .orElseThrow(() -> new RuntimeException("No hay palabras disponibles"));
+
+        Optional<GameInProgress> existingGame = gameInProgressRepository.findByJugadorAndPalabra(playerId, word.getId());
 
         if (existingGame.isPresent()) {
             return buildResponseFromGameInProgress(existingGame.get());
         }
-        
-        Word word = wordRepository.findRandomWord()
-                .orElseThrow(() -> new RuntimeException("No hay palabras disponibles"));
         
         word.setUtilizada(true);
         wordRepository.save(word);
